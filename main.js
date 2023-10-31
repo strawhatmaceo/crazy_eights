@@ -9,7 +9,7 @@ const renderer = new THREE.WebGLRenderer();
 // Sets window size
 renderer.setSize(window.innerWidth, window.innerHeight);
 
-// Sets pixel ratio so everything doesn't look high quality
+// Sets pixel ratio so everything doesn't look low quality
 renderer.setPixelRatio(window.devicePixelRatio);
 
 document.body.appendChild(renderer.domElement);
