@@ -3,8 +3,12 @@ import WebGL from 'three/addons/capabilities/WebGL.js';
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+camera.position.set(0, 10, 20);
 
 const renderer = new THREE.WebGLRenderer();
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
+
 
 // Sets window size
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -23,17 +27,17 @@ let chosenNumbers = [];
 const categories = ['clubs', 'diamonds', 'hearts', 'spades'];
 
 // Returns random integer from given range
-function randomIntFromRange(min, max) { 
+function randomIntFromRange(min, max) {
     return Math.floor(Math.random() * (max - min) + min);
 }
 
 // Only returns a number that doesn't already appear in the 'chosenNumbers' array
 function pickUniqueNumber() {
-    let randomNumber = randomIntFromRange(0, 51);
+    let randomNumber;
 
-    while (chosenNumbers.includes(randomNumber)) {
+    do {
         randomNumber = randomIntFromRange(0, 51);
-    }
+    } while (chosenNumbers.includes(randomNumber))
 
     chosenNumbers.push(randomNumber);
     return randomNumber;
@@ -84,7 +88,6 @@ function createDeckOfCards(amountOfCards) {
     for (let i = 0; i < amountOfCards; i++) {
         const randomNum = pickUniqueNumber();
 
-        console.log(randomNum);
         const card = allCards[randomNum];
 
         randomSelection.push(card);
@@ -104,19 +107,42 @@ createCardObjects();
 createDeckOfCards(7);
 alignCardPosition();
 
-camera.position.y = 10;
-camera.position.z = 20;
-
 function animate() {
     requestAnimationFrame(animate);
 
     renderer.render(scene, camera);
 }
 
+function onPointerMove(event) {
+    console.log('moved!')
+
+    pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+    pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
+
+    // update the picking ray with the camera and pointer position
+    raycaster.setFromCamera(pointer, camera);
+
+    // calculate objects intersecting the picking ray
+    const intersects = raycaster.intersectObjects(randomSelection);
+    
+    console.log(intersects)
+}
+
 
 
 if (WebGL.isWebGLAvailable()) {
     animate();
+
+    window.addEventListener( 'pointermove', onPointerMove );
+
+
+    // update the picking ray with the camera and pointer position
+    raycaster.setFromCamera(pointer, camera);
+
+    // calculate objects intersecting the picking ray
+    const intersects = raycaster.intersectObjects(randomSelection);
+    
+
 
 } else {
     const warning = WebGL.getWebGLErrorMessage();
